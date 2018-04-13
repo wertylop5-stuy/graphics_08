@@ -9,7 +9,8 @@
 #include"output.h"
 #include"shapes.h"
 
+//t is transform, p is polygon, e is edge
 void parse_instructions(char *filename, struct Matrix *t,
-			struct Matrix *e, Frame f);
+			struct Matrix *e, struct Matrix *p, Frame f);
 
 #endif

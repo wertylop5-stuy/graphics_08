@@ -9,6 +9,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 	struct Matrix *edges = new_matrix(4, 1);
+	struct Matrix *poly = new_matrix(4, 1);
 	struct Matrix *transform = new_matrix(4, 4);
 	Frame f;
 	memset(f, 0, sizeof(f));
@@ -16,9 +17,10 @@ int main(int argc, char **argv) {
 	struct Pixel p;
 	pixel_color(&p, 255, 235, 205);
 	
-	parse_instructions(argv[1], transform, edges, f);
+	parse_instructions(argv[1], transform, edges, poly, f);
 	
 	free_matrix(edges);
+	free_matrix(poly);
 	free_matrix(transform);
 	
 	return 0;

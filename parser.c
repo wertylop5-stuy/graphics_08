@@ -1,7 +1,7 @@
 #include"include/parser.h"
 
 void parse_instructions(char *filename, struct Matrix *t,
-			struct Matrix *e, Frame f) {
+			struct Matrix *e, struct Matrix *p, Frame f) {
 	FILE *file = fopen(filename, "r");
 	if (!file) return;
 	
@@ -40,13 +40,14 @@ void parse_instructions(char *filename, struct Matrix *t,
 		}
 		else if (!strncmp(line, "apply", strlen(line)-1)) {
 			matrix_mult(t, e);
+			matrix_mult(t, p);
 		}
 		else if (!strncmp(line, "display", strlen(line)-1)) {
 			memset(f, 0, sizeof(Frame));
-			struct Pixel p;
-			pixel_color(&p, 255, 105, 180);
-			//draw_lines(f, e, &p);
-			draw_polygons(f, e, &p);
+			struct Pixel pixel;
+			pixel_color(&pixel, 255, 105, 180);
+			draw_lines(f, e, &pixel);
+			draw_polygons(f, p, &pixel);
 			display(f);
 		}
 		else if (!strncmp(line, "save", strlen(line)-1)) {
@@ -85,21 +86,21 @@ void parse_instructions(char *filename, struct Matrix *t,
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%f %f %f %f",
 				      &x, &y, &z, &r);
-			add_sphere(e, x, y, z, r, 8);
+			add_sphere(p, x, y, z, r, 8);
 		}
 		else if (!strncmp(line, "box", strlen(line)-1)) {
 			float x, y, z, w, h, d;
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%f %f %f %f %f %f",
 				      &x, &y, &z, &w, &h, &d);
-			add_cube(e, x, y, z, w, h, d);
+			add_cube(p, x, y, z, w, h, d);
 		}
 		else if (!strncmp(line, "torus", strlen(line)-1)) {
 			float x, y, z, r1, r2;
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%f %f %f %f %f",
 				      &x, &y, &z, &r1, &r2);
-			add_torus(e, x, y, z, r1, r2, 10);
+			add_torus(p, x, y, z, r1, r2, 10);
 		}
 		else if (!strncmp(line, "clear", strlen(line)-1)) {
 			e->back = 0;

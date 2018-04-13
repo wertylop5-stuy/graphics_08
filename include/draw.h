@@ -31,6 +31,12 @@ void draw_lines(Frame grid, struct Matrix *m, struct Pixel *p);
 
 void pixel_color(struct Pixel *p, unsigned char r, unsigned char g, unsigned char b);
 
+//helper function to find the norm of two vectors
+//p1, p2, p3 are indices
+//goes counterclockwise starting at p1
+void find_norm(struct Matrix *m, int p1, int p2, int p3,
+		float *norm_out);
+
 void draw_polygons(Frame f, struct Matrix *m, struct Pixel *p);
 
 #endif

@@ -256,34 +256,74 @@ void add_cube(struct Matrix *m, float x, float y, float z,
 }
 
 void add_sphere(struct Matrix *m, float cx, float cy, float cz, float r, int step) {
-	struct Matrix *res = sphere_points(cx, cy, cz, r, step);
-	//struct Matrix *res = sphere_points(cx, cy, cz, r, step);
+	struct Matrix *res = sphere_points(cx, cy, cz, r, 30);
+	int step_small = 180/30 + 1;
 	int x;
-	for (x = 0; x < res->back - 1; x++) {
-		push_edge(m,
-			res->m[0][x],
-			res->m[1][x],
-			res->m[2][x],
-			res->m[0][x]+1,
-			res->m[1][x],
-			res->m[2][x]
-		);
-		push_edge(m,
-			res->m[0][x],
-			res->m[1][x],
-			res->m[2][x],
-			res->m[0][x],
-			res->m[1][x]+1,
-			res->m[2][x]
-		);
-		push_edge(m,
-			res->m[0][x],
-			res->m[1][x],
-			res->m[2][x],
-			res->m[0][x],
-			res->m[1][x],
-			res->m[2][x]+1
-		);
+	
+	for (x = 0/*step_small*7*/; x < res->back/*-(step_small*2)*/; x++) {
+		//skip last point
+		if (x % step_small == step_small - 1) continue;
+
+		//top pole
+		if (x % step_small == 0) {
+			
+			push_polygon(m,
+				res->m[0][x],
+				res->m[1][x],
+				res->m[2][x],
+				res->m[0][(x+1)%res->back],
+				res->m[1][(x+1)%res->back],
+				res->m[2][(x+1)%res->back],
+				res->m[0][(x+1+step_small)%res->back],
+				res->m[1][(x+1+step_small)%res->back],
+				res->m[2][(x+1+step_small)%res->back]
+			);
+			
+		}
+		//bottom pole, trigger the case before the final
+		//point in the semicircle (to avoid subtraction)
+		else if (x % step_small == step_small - 2) {
+			
+			push_polygon(m,
+				res->m[0][x],
+				res->m[1][x],
+				res->m[2][x],
+				res->m[0][(x+1)%res->back],
+				res->m[1][(x+1)%res->back],
+				res->m[2][(x+1)%res->back],
+				res->m[0][(x+step_small)%res->back],
+				res->m[1][(x+step_small)%res->back],
+				res->m[2][(x+step_small)%res->back]
+			);
+			
+		}
+		else {
+			
+			push_polygon(m,
+				res->m[0][(x+step_small+1)%res->back],
+				res->m[1][(x+step_small+1)%res->back],
+				res->m[2][(x+step_small+1)%res->back],
+				res->m[0][(x+step_small)%res->back],
+				res->m[1][(x+step_small)%res->back],
+				res->m[2][(x+step_small)%res->back],
+				res->m[0][x],
+				res->m[1][x],
+				res->m[2][x]
+			);
+			
+			push_polygon(m,
+				res->m[0][(x+1)%res->back],
+				res->m[1][(x+1)%res->back],
+				res->m[2][(x+1)%res->back],
+				res->m[0][(x+1+step_small)%res->back],
+				res->m[1][(x+1+step_small)%res->back],
+				res->m[2][(x+1+step_small)%res->back],
+				res->m[0][x],
+				res->m[1][x],
+				res->m[2][x]
+			);
+			
+		}
 	}
 	free_matrix(res);
 }
@@ -294,11 +334,6 @@ struct Matrix* sphere_points(float cx, float cy, float cz, float r, int step) {
 	for (t = 0; t <= 360; t+=step) {
 	for (t1 = 0; t1 <= 180; t1+=step) {
 		push_point(m,
-			/*
-			r*cosf(t1*M_PI) + cx,
-			r*sinf(t1*M_PI)*cosf(t*2*M_PI) + cy,
-			r*sinf(t1*M_PI)*sinf(t*2*M_PI) + cz
-			*/
 			r*cosf(t1*(M_PI/180.0f)) + cx,
 			r*sinf(t1*(M_PI/180.0f))*cosf(t*(M_PI/180.0f)) + cy,
 			r*sinf(t1*(M_PI/180.0f))*sinf(t*(M_PI/180.0f)) + cz
@@ -308,116 +343,35 @@ struct Matrix* sphere_points(float cx, float cy, float cz, float r, int step) {
 	return m;
 }
 
-int in_bounds(int val, int max, int min) {
-	if (val < min) return val + max;
-	if (val >= max) return val % max;
-	return val;
-}
-
 void add_torus(struct Matrix *m, float cx, float cy, float cz,
 		float r1, float r2, int step) {
-	//struct Matrix *res = torus_points(cx, cy, cz, r1, r2, step);
-	struct Matrix *res = torus_points(cx, cy, cz, r1, r2, 40);
-	int step_small = 360/40;
-	int step_big = 360/40;
-	int x, y;
+	struct Matrix *res = torus_points(cx, cy, cz, r1, r2, step);
+	int step_big = 360/step;
+	int x;
 	
-	/*
-	for (y = 0; y < step_big; y++) {
-	for (x = 0; x < step_small; x++) {
-	//for (x = 0; x < res->back; x++) {
-		push_polygon(m,
-			res->m[0][y*step_big+x],
-			res->m[1][y*step_big+x],
-			res->m[2][y*step_big+x],
-			res->m[0][(y*step_big+x+step_big)],
-			res->m[1][(y*step_big+x+step_big)],
-			res->m[2][(y*step_big+x+step_big)],
-			res->m[0][(y*step_big+x+1)],
-			res->m[1][(y*step_big+x+1)],
-			res->m[2][(y*step_big+x+1)]
-		);
-		push_polygon(m,
-			res->m[0][(y*step_big+x+step_big)],
-			res->m[1][(y*step_big+x+step_big)],
-			res->m[2][(y*step_big+x+step_big)],
-			res->m[0][(y*step_big+x+step_big+1)],
-			res->m[1][(y*step_big+x+step_big+1)],
-			res->m[2][(y*step_big+x+step_big+1)],
-			res->m[0][(y*step_big+x+1)],
-			res->m[1][(y*step_big+x+1)],
-			res->m[2][(y*step_big+x+1)]
-		);
-	}
-	}
-	*/
 	for (x = 0; x < res->back; x++) {
-		float tempA = [
-			res->m[0][(x+step_big)%res->back] - res->m[0][x],
-			res->m[1][(x+step_big)%res->back] - res->m[1][x],
-			res->m[2][(x+step_big)%res->back] - res->m[2][x]
-		];
-		
-		float tempB = [
-			res->m[0][(x+step_big+1)%res->back] - res->m[0][x],
-			res->m[1][(x+step_big+1)%res->back] - res->m[1][x],
-			res->m[2][(x+step_big+1)%res->back] - res->m[2][x]
-		];
-		
-		float norm = [
-			tempA[1]*tempB[2] - tempA[2]*tempA[1],
-			tempA[2]*tempB[0] - tempA[0]*tempB[2],
-			tempA[0]*tempB[1] - tempA[1]*tempB[0]
-		];
-		
-		if (norm[2] > 0) {
-			push_polygon(m,
-				res->m[0][x],
-				res->m[1][x],
-				res->m[2][x],
-				res->m[0][(x+step_big)%res->back],
-				res->m[1][(x+step_big)%res->back],
-				res->m[2][(x+step_big)%res->back],
-				res->m[0][(step_big+x+1)%res->back],
-				res->m[1][(step_big+x+1)%res->back],
-				res->m[2][(step_big+x+1)%res->back]
-			);
-		}
-		
-		tempA[0] = [
-			res->m[0][(x+step_big)%res->back] - res->m[0][x],
-
-			res->m[2][(x+step_big)%res->back] - res->m[2][x]
-		];
-		
-		tempA[0] = res->m[1][(x+step_big)%res->back] - res->m[1][x],
-		tempA[0] = ;
-		
-		tempB = [
-			res->m[0][(x+step_big+1)%res->back] - res->m[0][x],
-			res->m[1][(x+step_big+1)%res->back] - res->m[1][x],
-			res->m[2][(x+step_big+1)%res->back] - res->m[2][x]
-		];
-		
-		norm = [
-			tempA[1]*tempB[2] - tempA[2]*tempA[1],
-			tempA[2]*tempB[0] - tempA[0]*tempB[2],
-			tempA[0]*tempB[1] - tempA[1]*tempB[0]
-		];
-		
-		if (norm[2] > 0) {
-			push_polygon(m,
-				res->m[0][x],
-				res->m[1][x],
-				res->m[2][x],
-				res->m[0][(x+step_big+1)%res->back],
-				res->m[1][(x+step_big+1)%res->back],
-				res->m[2][(x+step_big+1)%res->back],
-				res->m[0][(x+1)%res->back],
-				res->m[1][(x+1)%res->back],
-				res->m[2][(x+1)%res->back]
-			);
-		}
+		push_polygon(m,
+			res->m[0][x],
+			res->m[1][x],
+			res->m[2][x],
+			res->m[0][(x+step_big)%res->back],
+			res->m[1][(x+step_big)%res->back],
+			res->m[2][(x+step_big)%res->back],
+			res->m[0][(x+step_big+1)%res->back],
+			res->m[1][(x+step_big+1)%res->back],
+			res->m[2][(x+step_big+1)%res->back]
+		);
+		push_polygon(m,
+			res->m[0][x],
+			res->m[1][x],
+			res->m[2][x],
+			res->m[0][(x+step_big+1)%res->back],
+			res->m[1][(x+step_big+1)%res->back],
+			res->m[2][(x+step_big+1)%res->back],
+			res->m[0][(x+1)%res->back],
+			res->m[1][(x+1)%res->back],
+			res->m[2][(x+1)%res->back]
+		);
 	}
 	free_matrix(res);
 }
@@ -439,8 +393,5 @@ struct Matrix* torus_points(float cx, float cy, float cz,
 	}
 	return m;
 }
-
-
-
 
 

@@ -160,28 +160,54 @@ void draw_line(Frame grid, struct Pixel *p, int x1, int y1, int x2, int y2) {
 	}
 }
 
+void find_norm(struct Matrix *m, int p1, int p2, int p3,
+		float *norm_out) {
+	//create vectors
+	float tempA[] = {
+		m->m[0][p2] - m->m[0][p1],
+		m->m[1][p2] - m->m[1][p1],
+		m->m[2][p2] - m->m[2][p1],
+	};
+	
+	float tempB[] = {
+		m->m[0][p3] - m->m[0][p1],
+		m->m[1][p3] - m->m[1][p1],
+		m->m[2][p3] - m->m[2][p1]
+	};
+	
+	//cross product
+	norm_out[0] = tempA[1]*tempB[2] - tempA[2]*tempA[1];
+	norm_out[1] = tempA[2]*tempB[0] - tempA[0]*tempB[2];
+	norm_out[2] = tempA[0]*tempB[1] - tempA[1]*tempB[0];
+}
 
 void draw_polygons(Frame f, struct Matrix *m, struct Pixel *p) {
 	int x;
+	float norm[3];
 	for (x = 0; x < m->back; x+=3) {
-		draw_line(f, p,
-			m->m[0][x],
-			m->m[1][x],
-			m->m[0][(x+1)],
-			m->m[1][(x+1)]
-		);
-		draw_line(f, p,
-			m->m[0][(x+1)],
-			m->m[1][(x+1)],
-			m->m[0][(x+2)],
-			m->m[1][(x+2)]
-		);
-		draw_line(f, p,
-			m->m[0][(x+2)],
-			m->m[1][(x+2)],
-			m->m[0][x],
-			m->m[1][x]
-		);
+		find_norm(m, x, x+1, x+2, norm);
+		//backface culling: don't draw if polygon
+		//not in sight
+		if (norm[2] > 0) {
+			draw_line(f, p,
+				m->m[0][x],
+				m->m[1][x],
+				m->m[0][(x+1)],
+				m->m[1][(x+1)]
+			);
+			draw_line(f, p,
+				m->m[0][(x+1)],
+				m->m[1][(x+1)],
+				m->m[0][(x+2)],
+				m->m[1][(x+2)]
+			);
+			draw_line(f, p,
+				m->m[0][(x+2)],
+				m->m[1][(x+2)],
+				m->m[0][x],
+				m->m[1][x]
+			);
+		}
 	}
 }
 

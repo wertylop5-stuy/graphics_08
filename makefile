@@ -1,4 +1,4 @@
-OBJS = draw.o output.o matrix.o parser.o shapes.o main.o
+OBJS = draw.o output.o matrix.o parser.o shapes.o rcs.o main.o
 OUTPUT = picture.ppm
 EXEC = exec
 MATH_LIB = -lm
@@ -25,6 +25,9 @@ parser.o:
 
 shapes.o:
 	gcc $(DBG) -Wall -c shapes.c include/shapes.h
+
+rcs.o:
+	gcc $(DBG) -Wall -c rcs.c include/rcs.h
 
 clean:
 	rm -rf *.o $(OUTPUT)
