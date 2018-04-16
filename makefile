@@ -9,7 +9,7 @@ all: $(OBJS)
 	./$(EXEC) $(SCRIPT)
 
 main.o:
-	gcc $(DBG) -Wall -c main.c include/draw.h include/output.h include/matrix.h
+	gcc $(DBG) -Wall -c main.c include/draw.h include/output.h include/rcs.h
 
 draw.o:
 	gcc $(DBG) -Wall -c draw.c include/draw.h

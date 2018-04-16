@@ -1,8 +1,8 @@
-/*
-rcs.h
-(make this look nicer)
-Relative coordinate system
-*/
+/* rcs.h
+ * 
+ * Contains functionality for using a stack of relative
+ * coordinate systems.
+ * */
 
 #ifndef RCS_H
 #define RCS_H
@@ -26,14 +26,14 @@ void free_stack(struct Rcs_stack *s);
 void resize_stack(struct Rcs_stack *s);
 
 //gets top (working) coordinate system
-struct Matrix *peek();
+struct Matrix *peek(struct Rcs_stack *s);
 
 //pushes a copy of the current top coordinate system
-void push_rcs();
+void push_rcs(struct Rcs_stack *s);
 
 //pop off the top coordinate system
 //will not do anything if at the bottom identity matrix
-void pop_rcs();
+void pop_rcs(struct Rcs_stack *s);
 
 #endif
 

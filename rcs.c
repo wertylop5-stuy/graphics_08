@@ -1,30 +1,52 @@
 #include"include/rcs.h"
 
 struct Rcs_stack* new_rcs_stack(int size) {
-	return 0;
+	struct Rcs_stack *res = (struct Rcs_stack *)malloc(sizeof(struct Rcs_stack));
+	res->stack = (struct Matrix **)malloc( (size+1)*sizeof(struct Matrix *));
+	res->capacity = size;
+	res->top = 1;
+	
+	//add base coordinate system
+	res->stack[0] = new_matrix(4, 4);
+	ident(res->stack[0]);
+
+	//add the working version
+	res->stack[1] = copy_matrix(res->stack[0]);
+	
+	return res;
 }
 
 void print_stack(struct Rcs_stack *s) {
-	
+	int x;
+	for (x = 0; x <= s->top; x++) {
+		printf("coordinate system at %d\n", x);
+		print_matrix(s->stack[x]);
+	}
 }
 
 void free_stack(struct Rcs_stack *s) {
-	
+	int x;
+	for (x = 0; x <= s->top; x++) {
+		free_matrix(s->stack[x]);
+	}
+	free(s->stack);
+	free(s);
 }
 
 void resize_stack(struct Rcs_stack *s) {
+	s->stack = realloc(s->stack, ((s->capacity)*=2)*sizeof(struct Matrix *) );
+}
+
+struct Matrix *peek(struct Rcs_stack *s) {
+	return s->stack[s->top];
+}
+
+void push_rcs(struct Rcs_stack *s) {
 	
 }
 
-struct Matrix *peek() {
-	return 0;
-}
-
-void push_rcs() {
-	
-}
-
-void pop_rcs() {
-	
+void pop_rcs(struct Rcs_stack *s) {
+	free_matrix(s->stack[s->top]);
+	(s->top)--;
 }
 

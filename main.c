@@ -1,7 +1,7 @@
 #include"include/draw.h"
 #include"include/output.h"
-#include"include/matrix.h"
 #include"include/parser.h"
+#include"include/rcs.h"
 
 int main(int argc, char **argv) {
 	if (argc < 2) {
@@ -17,7 +17,12 @@ int main(int argc, char **argv) {
 	struct Pixel p;
 	pixel_color(&p, 255, 235, 205);
 	
-	parse_instructions(argv[1], transform, edges, poly, f);
+	//parse_instructions(argv[1], transform, edges, poly, f);
+	struct Rcs_stack *s = new_rcs_stack(2);
+	print_stack(s);
+	print_matrix(peek(s));
+
+	free_stack(s);
 	
 	free_matrix(edges);
 	free_matrix(poly);
