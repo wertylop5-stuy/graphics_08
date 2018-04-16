@@ -17,9 +17,6 @@ void parse_instructions(char *filename, struct Matrix *t,
 				&x1, &y1, &z1, &x2, &y2, &z2);
 			push_edge(e, x1, y1, z1, x2, y2, z2);
 		}
-		else if (!strncmp(line, "ident", strlen(line)-1)) {
-			ident(t);
-		}
 		else if (!strncmp(line, "scale", strlen(line)-1)) {
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%f %f %f",
@@ -37,10 +34,6 @@ void parse_instructions(char *filename, struct Matrix *t,
 			sscanf(line, "%c %f",
 				&axis, &z1);
 			rotate(t, axis, z1);
-		}
-		else if (!strncmp(line, "apply", strlen(line)-1)) {
-			matrix_mult(t, e);
-			matrix_mult(t, p);
 		}
 		else if (!strncmp(line, "display", strlen(line)-1)) {
 			memset(f, 0, sizeof(Frame));
@@ -102,8 +95,11 @@ void parse_instructions(char *filename, struct Matrix *t,
 				      &x, &y, &z, &r1, &r2);
 			add_torus(p, x, y, z, r1, r2, 10);
 		}
-		else if (!strncmp(line, "clear", strlen(line)-1)) {
-			e->back = 0;
+		else if (!strncmp(line, "push", strlen(line)-1)) {
+			
+		}
+		else if (!strncmp(line, "pop", strlen(line)-1)) {
+			
 		}
 	}
 	

@@ -11,14 +11,16 @@ int main(int argc, char **argv) {
 	struct Matrix *edges = new_matrix(4, 1);
 	struct Matrix *poly = new_matrix(4, 1);
 	struct Matrix *transform = new_matrix(4, 4);
+	struct Rcs_stack *s = new_rcs_stack(4);
 	Frame f;
 	memset(f, 0, sizeof(f));
 	
 	struct Pixel p;
 	pixel_color(&p, 255, 235, 205);
 	
-	//parse_instructions(argv[1], transform, edges, poly, f);
-	struct Rcs_stack *s = new_rcs_stack(2);
+	parse_instructions(argv[1], transform, edges, poly, f);
+
+	/*
 	print_stack(s);
 	//print_matrix(peek(s));
 	printf("%d\n", s->capacity);
@@ -48,6 +50,7 @@ int main(int argc, char **argv) {
 	pop_rcs(s);
 	print_matrix(peek(s));
 	printf("%d\n", s->top);
+	*/
 
 	free_stack(s);
 	
