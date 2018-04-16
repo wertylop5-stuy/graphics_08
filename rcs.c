@@ -3,7 +3,7 @@
 struct Rcs_stack* new_rcs_stack(int size) {
 	struct Rcs_stack *res = (struct Rcs_stack *)malloc(sizeof(struct Rcs_stack));
 	res->stack = (struct Matrix **)malloc( (size+1)*sizeof(struct Matrix *));
-	res->capacity = size;
+	res->capacity = size+1;
 	res->top = 1;
 	
 	//add base coordinate system
@@ -42,10 +42,18 @@ struct Matrix *peek(struct Rcs_stack *s) {
 }
 
 void push_rcs(struct Rcs_stack *s) {
-	
+	if (s->top+1 >= s->capacity) resize_stack(s);
+	s->stack[(s->top)+1] = copy_matrix(s->stack[s->top]);
+	(s->top)+=1;
 }
 
 void pop_rcs(struct Rcs_stack *s) {
+	//can't go past the base coordinate system
+	if (s->top == 1) {
+		free_matrix(s->stack[1]);
+		s->stack[1] = copy_matrix(s->stack[0]);
+		return;
+	}
 	free_matrix(s->stack[s->top]);
 	(s->top)--;
 }
