@@ -9,20 +9,22 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 	float x1, y1, z1, x2, y2, z2;
 	char axis;
 	
-	struct Matrix *e = new_matrix(4, 1);
-	struct Matrix *p = new_matrix(4, 1);
-	struct Matrix *t = new_matrix(4, 4);
-	
 	memset(f, 0, sizeof(Frame));
 	struct Pixel pixel;
 	pixel_color(&pixel, 255, 105, 180);
 	
 	while (fgets(line, sizeof(line), file) != 0) {
 		if (!strncmp(line, "line", strlen(line)-1)) {
+			struct Matrix *e = new_matrix(4, 1);
+			
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%f %f %f %f %f %f",
 				&x1, &y1, &z1, &x2, &y2, &z2);
+			
 			push_edge(e, x1, y1, z1, x2, y2, z2);
+			matrix_mult(peek(s), e);
+			draw_lines(f, e, &pixel);
+			free_matrix(e);
 		}
 		else if (!strncmp(line, "scale", strlen(line)-1)) {
 			fgets(line, sizeof(line), file);
@@ -32,8 +34,8 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 			struct Matrix *t = scale(x1, y1, z1);
 			//matrix_mult(t, s->stack[s->top]);
 			
-			matrix_mult(s->stack[s->top], t);
-			free_matrix(s->stack[s->top]);
+			matrix_mult(peek(s), t);
+			free_matrix(peek(s));
 			s->stack[s->top] = copy_matrix(t);
 			
 			free_matrix(t);
@@ -46,8 +48,8 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 			struct Matrix *t = move(x1, y1, z1);
 			//matrix_mult(t, s->stack[s->top]);
 			
-			matrix_mult(s->stack[s->top], t);
-			free_matrix(s->stack[s->top]);
+			matrix_mult(peek(s), t);
+			free_matrix(peek(s));
 			s->stack[s->top] = copy_matrix(t);
 			
 			free_matrix(t);
@@ -61,7 +63,7 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 			//matrix_mult(t, s->stack[s->top]);
 			
 			matrix_mult(peek(s), t);
-			free_matrix(s->stack[s->top]);
+			free_matrix(peek(s));
 			s->stack[s->top] = copy_matrix(t);
 			
 			free_matrix(t);
@@ -82,23 +84,41 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 		}
 		else if (!strncmp(line, "circle", strlen(line)-1)) {
 			float cx, cy, cz, r;
+			struct Matrix *e = new_matrix(4, 1);
+			
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%f %f %f %f", &cx, &cy, &cz, &r);
+			
 			make_circle(e, cx, cy, cz, r, 2*M_PI);
+			matrix_mult(peek(s), e);
+			draw_lines(f, e, &pixel);
+			free_matrix(e);
 		}
 		else if (!strncmp(line, "hermite", strlen(line)-1)) {
 			float x0, y0, x1, y1, rx0, ry0, rx1, ry1;
+			struct Matrix *e = new_matrix(4, 1);
+			
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%f %f %f %f %f %f %f %f",
 				&x0, &y0, &x1, &y1, &rx0, &ry0, &rx1, &ry1);
+			
 			make_hermite(e, x0, y0, x1, y1, rx0, ry0, rx1, ry1);
+			matrix_mult(peek(s), e);
+			draw_lines(f, e, &pixel);
+			free_matrix(e);
 		}
 		else if (!strncmp(line, "bezier", strlen(line)-1)) {
 			float x0, y0, x1, y1, x2, y2, x3, y3;
+			struct Matrix *e = new_matrix(4, 1);
+			
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%f %f %f %f %f %f %f %f",
 				&x0, &y0, &x1, &y1, &x2, &y2, &x3, &y3);
+			
 			make_bezier(e, x0, y0, x1, y1, x2, y2, x3, y3);
+			matrix_mult(peek(s), e);
+			draw_lines(f, e, &pixel);
+			free_matrix(e);
 		}
 		else if (!strncmp(line, "sphere", strlen(line)-1)) {
 			float x, y, z, r;
@@ -110,10 +130,9 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 			
 			//draw sphere then remove the matrix
 			add_sphere(p, x, y, z, r, 8);
-			matrix_mult(s->stack[s->top], p);
+			matrix_mult(peek(s), p);
 			draw_polygons(f, p, &pixel);
 			free_matrix(p);
-			print_stack(s);
 		}
 		else if (!strncmp(line, "box", strlen(line)-1)) {
 			float x, y, z, w, h, d;
@@ -124,10 +143,9 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 				      &x, &y, &z, &w, &h, &d);
 			
 			add_cube(p, x, y, z, w, h, d);
-			matrix_mult(s->stack[s->top], p);
+			matrix_mult(peek(s), p);
 			draw_polygons(f, p, &pixel);
 			free_matrix(p);
-			print_stack(s);
 		}
 		else if (!strncmp(line, "torus", strlen(line)-1)) {
 			float x, y, z, r1, r2;
@@ -138,10 +156,9 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 				      &x, &y, &z, &r1, &r2);
 			
 			add_torus(p, x, y, z, r1, r2, 10);
-			matrix_mult(s->stack[s->top], p);
+			matrix_mult(peek(s), p);
 			draw_polygons(f, p, &pixel);
 			free_matrix(p);
-			print_stack(s);
 		}
 		else if (!strncmp(line, "push", strlen(line)-1)) {
 			push_rcs(s);
@@ -150,10 +167,6 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 			pop_rcs(s);
 		}
 	}
-	
-	free_matrix(e);
-	free_matrix(p);
-	free_matrix(t);
 	
 	fclose(file);
 	file = 0;
