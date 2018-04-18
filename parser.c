@@ -13,7 +13,7 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 	struct Pixel pixel;
 	pixel_color(&pixel, 255, 105, 180);
 	
-	while (fgets(line, sizeof(line), file) != 0) {
+	while (fgets(line, sizeof(line), file) != 0 && line[0] != '\n') {
 		if (!strncmp(line, "line", strlen(line)-1)) {
 			struct Matrix *e = new_matrix(4, 1);
 			
@@ -155,7 +155,7 @@ void parse_instructions(char *filename, struct Rcs_stack *s, Frame f) {
 			sscanf(line, "%f %f %f %f %f",
 				      &x, &y, &z, &r1, &r2);
 			
-			add_torus(p, x, y, z, r1, r2, 10);
+			add_torus(p, x, y, z, r1, r2, 30);
 			matrix_mult(peek(s), p);
 			draw_polygons(f, p, &pixel);
 			free_matrix(p);
