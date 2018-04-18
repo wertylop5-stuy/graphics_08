@@ -1,6 +1,6 @@
 #include"include/shapes.h"
 
-void scale(struct Matrix *t, float a, float b, float c) {
+struct Matrix* scale(float a, float b, float c) {
 	struct Matrix *temp = new_matrix(4, 4);
 	ident(temp);
 	
@@ -8,11 +8,10 @@ void scale(struct Matrix *t, float a, float b, float c) {
 	temp->m[1][1] = b;
 	temp->m[2][2] = c;
 	
-	matrix_mult(temp, t);
-	free_matrix(temp);
+	return temp;
 }
 
-void move(struct Matrix *t, float a, float b, float c) {
+struct Matrix* move(float a, float b, float c) {
 	struct Matrix *temp = new_matrix(4, 4);
 	ident(temp);
 	
@@ -20,11 +19,10 @@ void move(struct Matrix *t, float a, float b, float c) {
 	temp->m[1][3] = b;
 	temp->m[2][3] = c;
 	
-	matrix_mult(temp, t);
-	free_matrix(temp);
+	return temp;
 }
 
-void rotate(struct Matrix *t, char axis, float deg) {
+struct Matrix* rotate(char axis, float deg) {
 	struct Matrix *temp = new_matrix(4, 4);
 	ident(temp);
 	float rad = deg * (M_PI/180.0f);
@@ -52,8 +50,7 @@ void rotate(struct Matrix *t, char axis, float deg) {
 		break;
 	}
 
-	matrix_mult(temp, t);
-	free_matrix(temp);
+	return temp;
 }
 
 //the p0, p1, etc is just the x or y coord
@@ -177,7 +174,7 @@ void make_bezier(struct Matrix *m, float x0, float y0, float x1, float y1,
 }
 
 void add_cube(struct Matrix *m, float x, float y, float z,
-		float height, float width, float depth) {
+		float width, float height, float depth) {
 	float x2 = x + width;
 	float y2 = y - height;
 	float z2 = z - depth;

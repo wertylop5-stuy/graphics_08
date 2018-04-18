@@ -15,10 +15,10 @@
 //used for drawing curves
 #define STEP	.01f
 
-//transformations
-void scale(struct Matrix *t, float a, float b, float c);
-void move(struct Matrix *t, float a, float b, float c);
-void rotate(struct Matrix *t, char axis, float deg);	//0: x, 1: y, 2: z
+//returns transformation matrices
+struct Matrix* scale(float a, float b, float c);
+struct Matrix* move(float a, float b, float c);
+struct Matrix* rotate(char axis, float deg);	//0: x, 1: y, 2: z
 
 //runs generic parametric function at^3 + bt^2 + ct + d with t [0, 1]
 //for the x and y coords
@@ -34,7 +34,7 @@ void make_bezier(struct Matrix *m, float x0, float y0, float x1, float y1,
 	float x2, float y2, float x3, float y3);
 
 void add_cube(struct Matrix *m, float x, float y, float z,
-	float height, float width, float depth);
+	float width, float height, float depth);
 
 void add_sphere(struct Matrix *m, float cx, float cy, float cz, float r, int step);
 struct Matrix* sphere_points(float cx, float cy, float cz, float r, int step);

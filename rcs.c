@@ -9,6 +9,7 @@ struct Rcs_stack* new_rcs_stack(int size) {
 	//add base coordinate system
 	res->stack[0] = new_matrix(4, 4);
 	ident(res->stack[0]);
+	res->stack[0]->back = 4;
 
 	//add the working version
 	res->stack[1] = copy_matrix(res->stack[0]);

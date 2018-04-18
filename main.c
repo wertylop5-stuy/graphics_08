@@ -8,9 +8,6 @@ int main(int argc, char **argv) {
 		printf("Please state an input file\n");
 		exit(1);
 	}
-	struct Matrix *edges = new_matrix(4, 1);
-	struct Matrix *poly = new_matrix(4, 1);
-	struct Matrix *transform = new_matrix(4, 4);
 	struct Rcs_stack *s = new_rcs_stack(4);
 	Frame f;
 	memset(f, 0, sizeof(f));
@@ -18,7 +15,7 @@ int main(int argc, char **argv) {
 	struct Pixel p;
 	pixel_color(&p, 255, 235, 205);
 	
-	parse_instructions(argv[1], transform, edges, poly, f);
+	parse_instructions(argv[1], s, f);
 
 	/*
 	print_stack(s);
@@ -53,10 +50,6 @@ int main(int argc, char **argv) {
 	*/
 
 	free_stack(s);
-	
-	free_matrix(edges);
-	free_matrix(poly);
-	free_matrix(transform);
 	
 	return 0;
 }
